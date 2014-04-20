@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<!--STATUS OK-->
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html;charset=utf-8">
+    <link rel="stylesheet" type="text/css" href="resources/css/style.css">
+
+</head>
+<body>
+
+</body>
+</html>
+<script type="text/javascript" src="lib/sea.js"></script>
+<script type="text/javascript">
+        seajs.config({
+            base: "./",
+            alias: {
+                "jquery": "lib/jquery.js",
+                'backbone': 'lib/backbone.js',
+                'raphael': 'lib/raphael.js',
+                '_': 'lib/underscore.js'
+            }
+        });
+
+        seajs.use(['src/views/DiagramEditor.js'], function(DiagramEditor) {
+            var editor = new DiagramEditor({
+                toolsbar: {
+
+                },
+                desk: {
+
+                }
+            });
+            editor.render(document.body);
+        });
+</script>

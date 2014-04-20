@@ -1,0 +1,38 @@
+body {
+    margin: 0px;
+    padding: 0px;
+}
+
+.diagram-editor {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+}
+
+.de-toolsbar {
+    position: absolute;
+    background: white;
+    left: 0px;
+    top: 0px;
+    width: 200px;
+    height: 100%;
+    z-index: 1;
+    box-shadow: 0 0 18px rgba(0, 0, 0, 0.4);
+}
+
+.de-desk {
+    position: absolute;
+    background: #DFDFDF;
+    left: 200px;
+    top: 0px;
+    bottom: 0px;
+    right: 0px;
+    overflow: scroll;
+}
+
+.de-paper {
+    position: absolute;
+    background: url(../images/grid.png);
+    box-shadow: 0 0 18px rgba(0, 0, 0, 0.4);
+}
+
