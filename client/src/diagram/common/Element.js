@@ -8,9 +8,12 @@ define(function(require, exports, module) {
      */
     var Element = module.exports = function(paper, options) {
         options = options || {};
+        this.paper = paper;
         this.$el = paper.set();
         this.x = options.x || 0;
         this.y = options.y || 0;
+        this.width = options.width || 0;
+        this.height = options.height || 0;
         this.initialize.call(this, paper, options);
     };
 
@@ -26,76 +29,23 @@ define(function(require, exports, module) {
         },
 
         /**
-         *  进入编辑模式
-         */ 
-        enterEditMode: function(options) {
-            this.onEnterEditMode(options);
-            this.trigger('enterEditMode', options);
-        },
-
-        /**
-         *  退出编辑模式
+         *  包含其他的图形元素
          */
-        closeEditMode: function(options) {
-            this.onCloseEditMode(options);
-            this.trigger('closeEditMode', options);
-        },
-
-        onEnterEditMode: function(options) {
-
-        },
-
-        onCloseEditMode: function(options) {
-            
-        },
-
-        /**
-         *  允许拖拽操作
-         */
-        enableDrag: function(dragContext) {
-            var el = this.$el;
-            var x, y;
-
-            var moveHandle = function(evt) {
-                var dx = evt.clientX - x,
-                    dy = evt.clientY - y;
-                x = evt.clientX;
-                y = evt.clientY;
-
-                el.forEach(function(e) {
-                    var cx = e.attr('cx'),
-                        cy = e.attr('cy');
-                    e.attr({
-                        cx: cx + dx,
-                        cy: cy + dy
-                    });
+        include: function(element) {
+            if (element instanceof Element) {
+                var set = this.$el;
+                element.$el.forEach(function(el) {
+                    set.push(el);
                 });
-            };
-
-            var dropHandle = function(evt) {
-                $(document).unbind('mousemove', moveHandle);
-                $(document).unbind('mouseup', dropHandle);
-            };
-
-            this._dragHandle = function(evt) {
-                evt.preventDefault();
-                evt.stopPropagation();
-                x = evt.clientX, y = evt.clientY;
-                console.log('start drag', evt);
-                $(document).mousemove(moveHandle);
-                $(document).mouseup(dropHandle);
-            };
-
-            dragContext.mousedown(this._dragHandle);
+            }
         },
 
         /**
-         *  禁用拖拽操作
+         *  从画布中移除
          */
-        disableDrag: function(dragContext) {
-
-        },
-
+        remove: function() {
+            this.$el.remove();
+        }
 
     });
 });
