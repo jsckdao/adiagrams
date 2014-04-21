@@ -22,7 +22,7 @@
             }
         });
 
-        seajs.use(['src/views/DiagramEditor.js'], function(DiagramEditor) {
+        seajs.use(['src/views/DiagramEditor.js', 'src/diagram/usercase/Case.js'], function(DiagramEditor, Case) {
             var editor = new DiagramEditor({
                 toolsbar: {
 
@@ -32,5 +32,11 @@
                 }
             });
             editor.render(document.body);
+
+            var paper = editor.desk.paper;
+
+            new Case(paper, {
+                x: 1300, y : 1300
+            });
         });
 </script>

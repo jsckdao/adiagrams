@@ -35,6 +35,7 @@ define(function(require, exports, module) {
             // 开始拖动时的动作
             var dragHandle = function(evt) {
                 // 记录坐标于鼠标坐标
+                evt.preventDefault();
                 mx = evt.clientX;
                 my = evt.clientY;
                 self.paperContext.bind('mousemove', moveHandle);
@@ -91,6 +92,7 @@ define(function(require, exports, module) {
             this.$el.scrollTop((this.paperHeight - this.frameHeight) / 2);
         },
 
+        // 加入页面中
         render: function(context) {
             var op = this.options;
             this.$el.appendTo(context);
@@ -100,26 +102,6 @@ define(function(require, exports, module) {
             this.initResizeFrame();
             this.initPaperDrag();
             this.movePaperCenter();
-
-            var c = this.paper;
-            var el = c.circle(1300, 1200, 50);
-            el.attr('fill', 'red');
-
-            var sx = 1300, sy = 1200;
-            var cx, cy;
-
-            el.drag(function(dx, dy, x, y, evt) {
-                el.attr({
-                    cx: ( sx = x - cx ),
-                    cy: ( sy = y - cy )
-                });
-            }, function(x, y) {
-                cx = x - sx;
-                cy = y - sy;
-            }, function(x, y) {
-
-            });
-        
             return this;
         }
     });
