@@ -29,19 +29,27 @@ define(function(require, exports, module) {
 
         // 设置画布可拖动
         initPaperDrag: function() {
-            var dx, dy, self = this;
+            var mx, my, self = this;
+            var el = self.$el;
 
             // 开始拖动时的动作
             var dragHandle = function(evt) {
-                dx = evt.clientX - self.paperX;
-                dy = evt.clientY - self.paperY;
+                // 记录坐标于鼠标坐标
+                mx = evt.clientX;
+                my = evt.clientY;
                 self.paperContext.bind('mousemove', moveHandle);
                 self.paperContext.bind('mouseup', dropHandle);
             };
 
             // 拖动时的动作
             var moveHandle = function(evt) {
-                self.setPaperLocation(evt.clientX - dx, evt.clientY - dy);
+                var dx = evt.clientX - mx,
+                    dy = evt.clientY - my;
+                my = evt.clientY;
+                mx = evt.clientX;
+
+                el.scrollLeft(el.scrollLeft() - dx);
+                el.scrollTop(el.scrollTop() - dy);
             };
 
             // 拖动结束动作
@@ -61,28 +69,10 @@ define(function(require, exports, module) {
             this.$el.resize(function() {
                 self.frameWidth = el.offsetWidth;
                 self.frameHeight = el.offsetHeight;
-
-                // 只要视图大小小于画布大小, 就尽量保证视图不超出
-                if (self.frameWidth < self.paperWidth || self.frameHeight < self.paperHeight) {
-
-                }
-                // 否则尽量使画布保持居中显示
-                else {
-                    self.movePaperCenter();
-                }
             }).resize();
-
         },
 
-        // 重设画布位置
-        setPaperLocation: function(x, y) {
-            this.paperX = x;
-            this.paperY = y;
-            this.paperContext.css({
-                left: this.paperX + 'px',
-                top: this.paperY + 'px'
-            });
-        },
+
 
         // 重置画布大小
         resizePaper: function(width, height) {
@@ -97,7 +87,8 @@ define(function(require, exports, module) {
 
         // 居中显示
         movePaperCenter: function() {
-            this.setPaperLocation((this.frameWidth - this.paperWidth) / 2, (this.frameHeight - this.paperHeight) / 2);
+            this.$el.scrollLeft((this.paperWidth - this.frameWidth) / 2);
+            this.$el.scrollTop((this.paperHeight - this.frameHeight) / 2);
         },
 
         render: function(context) {
@@ -110,13 +101,11 @@ define(function(require, exports, module) {
             this.initPaperDrag();
             this.movePaperCenter();
 
-            /*
-
             var c = this.paper;
-            var el = c.circle(300, 200, 50);
+            var el = c.circle(1300, 1200, 50);
             el.attr('fill', 'red');
 
-            var sx = 300, sy = 200;
+            var sx = 1300, sy = 1200;
             var cx, cy;
 
             el.drag(function(dx, dy, x, y, evt) {
@@ -130,7 +119,7 @@ define(function(require, exports, module) {
             }, function(x, y) {
 
             });
-            */
+        
             return this;
         }
     });

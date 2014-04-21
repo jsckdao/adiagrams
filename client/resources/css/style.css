@@ -32,6 +32,8 @@ body {
 
 .de-paper {
     position: absolute;
+    left: 0px;
+    top: 0px;
     background: url(../images/grid.png);
     box-shadow: 0 0 18px rgba(0, 0, 0, 0.4);
 }
