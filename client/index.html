@@ -22,7 +22,11 @@
             }
         });
 
-        seajs.use(['src/views/DiagramEditor.js', 'src/diagram/usercase/Case.js'], function(DiagramEditor, Case) {
+        seajs.use(['src/ui/DiagramEditor.js', 
+            'src/diagram/usercase/views/Case.js',
+            'src/diagram/usercase/views/BaseArrow.js'], 
+        function(DiagramEditor, Case, Arrow) {
+
             var editor = new DiagramEditor({
                 toolsbar: {
 
@@ -31,13 +35,25 @@
 
                 }
             });
+
             editor.render(document.body);
 
             var paper = editor.desk.paper;
 
-            new Case(paper, {
+            var c1 = new Case(paper, {
                 x: 1300, y : 1300,
                 width: 200, height: 100
+            });
+
+            var c2 = new Case(paper, {
+                x: 1500, y : 1500,
+                width: 200, height: 100
+            });
+
+
+            new Arrow(paper, {
+                startPoint: c1.connectPoint[0],
+                endPoint: c2.connectPoint[1]
             });
         });
 </script>
