@@ -28,7 +28,7 @@ define(function(require, exports, module) {
                 var p = this.points[i];
                 p[0] -= dx;
                 p[1] -= dy;
-                this.trigger('movePoint', this, i, p[0], [1]);
+                this.trigger('movePoint', this, i, p[0], p[1]);
             }
             this.path.attr('path', this.buildPathString());
             Element.prototype.move.call(this, x, y, options);

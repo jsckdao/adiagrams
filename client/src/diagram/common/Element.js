@@ -7,7 +7,7 @@ define(function(require, exports, module) {
     var $ = require('jquery');
 
     /*** 
-     * 图形元素基类
+     * 图形元素基类, 负责一系列特定图形在编辑器中的绘制
      */
     var Element = module.exports = function(paper, options) {
         options = options || {};

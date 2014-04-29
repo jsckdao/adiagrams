@@ -18,14 +18,14 @@ define(function(require, exports, module) {
             y = evt.clientY;
 
             element.move(element.x + dx, element.y + dy);
-            element.trigger('dragMove', dx, dy, x, y, evt);
+            element.trigger('dragMove', element, dx, dy, x, y, evt);
         };
 
         // 鼠标松开侦听器
         var dropHandle = function(evt) {
             $(document).unbind('mousemove', moveHandle);
             $(document).unbind('mouseup', dropHandle);
-            element.trigger('dragEnd', evt.clientX, evt.clientY, evt);
+            element.trigger('dragEnd', element, evt.clientX, evt.clientY, evt);
         };
 
         // 鼠标按下的侦听器
@@ -35,10 +35,11 @@ define(function(require, exports, module) {
             x = evt.clientX, y = evt.clientY;
             $(document).mousemove(moveHandle);
             $(document).mouseup(dropHandle);
-            element.trigger('dragStart', x, y);
+            element.trigger('dragStart', element, x, y);
         };
 
         dragContext.mousedown(dragContext._dragHandle);
+        dragContext.attr('cursor', 'move');
     };
 
     /**
@@ -47,6 +48,7 @@ define(function(require, exports, module) {
     exports.disable = function(element, dragContext) {
         if (dragContext._dragHandle) {
             dragContext.off('mousedown', dragContext._dragHandle);
+            dragContext.attr('cursor', 'default');
         }
     };
 });

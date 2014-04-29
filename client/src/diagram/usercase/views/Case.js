@@ -22,6 +22,8 @@ define(function(require, exports, module) {
                 new Point(paper, { x: this.x, y: this.y + h }),
                 new Point(paper, { x: this.x, y: this.y - h })
             ];
+
+            this.cancelSelectedMode();
         },
 
         move: function(x, y, options) {
@@ -30,7 +32,7 @@ define(function(require, exports, module) {
             this.connectPoint.forEach(function(p) {
                 p.move(p.x + dx, p.y + dy, options);
             });
-            Element.prototype.move.call(this, x, y, options);
+            DiagramUnit.prototype.move.call(this, x, y, options);
         },
 
         remove: function() {
@@ -38,7 +40,25 @@ define(function(require, exports, module) {
             this.connectPoint.forEach(function(e) {
                 e.remove();
             });
-        }
+        },
+
+        /**
+         *  进入选中模式
+         */
+        enterSelectedMode: function() {
+            this.connectPoint.forEach(function(e) {
+                e.show();
+            });
+        },
+
+        /**
+         *  离开选中模式
+         */
+        cancelSelectedMode: function() {
+            this.connectPoint.forEach(function(e) {
+                e.hide();
+            });
+        },
 
 
     });
