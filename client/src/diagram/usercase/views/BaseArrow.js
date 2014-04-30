@@ -118,6 +118,8 @@ define(function(require, exports, module) {
 
         connect: function(start, end) {
             this.arrow.connect(start, end);
-        }
+        },
+
+        
     });
 });

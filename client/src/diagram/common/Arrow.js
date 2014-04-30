@@ -3,6 +3,7 @@ define(function(require, exports, module) {
     var Point = require('./Point.js');
     var Line = require('./Line.js');
     var _ = require('_');
+    var ArrowHead = require('./ArrowHead.js');
 
     var Arrow = module.exports = Line.extend({
 
@@ -19,6 +20,8 @@ define(function(require, exports, module) {
             }, o);
 
             Line.prototype.initialize.call(this, paper, o);
+            var p = this.points[this.points.length - 1];
+            this.arrowHead = this.paintArrawHead(p[0], p[1]);
             this.connect(o.startPoint, o.endPoint);
         },
 
@@ -48,6 +51,9 @@ define(function(require, exports, module) {
             point.on('move', this.__startPointMove);
         },
 
+        /**
+         *  设置结束点位
+         */
         setEndPoint: function(point) {
             if (!point) return;
             if (this.endPoint) {
@@ -77,8 +83,15 @@ define(function(require, exports, module) {
             }
         },
 
-        paintArraw: function() {
-            
-        }
+        /**
+         * 绘制
+         */
+        paintArrawHead: function(x, y) {
+            return new ArrowHead(this.paper,{
+                x: x, y: y
+            });
+        },
+
+
     });
 });
