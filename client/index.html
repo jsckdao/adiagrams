@@ -43,18 +43,19 @@
 
             var c1 = new Case(paper, {
                 x: 1300, y : 1300,
-                width: 200, height: 100
+                width: 100, height: 50
             });
 
             var c2 = new Case(paper, {
                 x: 1500, y : 1500,
-                width: 200, height: 100
+                width: 100, height: 50
             });
 
 
             new Arrow(paper, {
-                startPoint: c1.connectPoint[0],
-                endPoint: c2.connectPoint[1]
+                startPoint: c2.connectPoint[0],
+                endPoint: c1.connectPoint[1]
             });
+
         });
 </script>

@@ -3,6 +3,7 @@
  */
 define(function(require, exports, module) {
     var Element = require('./Element.js');
+    var $ = require('jquery');
 
     var Point = module.exports = Element.extend({
 
@@ -12,9 +13,12 @@ define(function(require, exports, module) {
         initialize: function(paper, options) {
             var self = this;
             var s = this.size = this.width = this.height = options.size || 4;
-            this.el = this.$el = paper.circle(this.x , this.y, s).attr({
-                fill: options.fill || 'black'
-            });
+            var style = $.extend({
+                'fill': 'white',
+                'stroke-color': 'black'
+            }, options.style);
+
+            this.el = this.$el = paper.circle(this.x , this.y, s).attr(style);
 
         },
 
