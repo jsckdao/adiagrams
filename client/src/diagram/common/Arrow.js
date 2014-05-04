@@ -37,73 +37,9 @@ define(function(require, exports, module) {
 
                 self.changeArrowHeadAngle();
             });
-
-            this.connect(o.startPoint, o.endPoint);
         },
 
-        /**
-         *  将箭头连接两个点
-         */
-        connect: function(p1, p2) {
-            this.setStartPoint(p1);
-            this.setEndPoint(p2);
-        },
 
-        /**
-         *  连接起始点位
-         */
-        setStartPoint: function(point) {
-            if (!point) return;
-            if (this.startPoint) {
-                this.removeStartPoint();
-            }
-            var self = this;
-            this.startPoint = point;
-            this.__startPointMove = function(p, x, y) {
-                self.movePoint(0, x, y);
-            };
-
-            this.__startPointMove(point, point.x, point.y);
-            point.on('move', this.__startPointMove);
-        },
-
-        /**
-         *  设置结束点位
-         */
-        setEndPoint: function(point) {
-            if (!point) return;
-            if (this.endPoint) {
-                this.removeEndPoint();
-            }
-            var self = this;
-            this.endPoint = point;
-            this.__endPointMove = function(p, x, y) {
-                var last = self.points.length - 1;
-                self.movePoint(last, x, y);
-            };
-            this.__endPointMove(point, point.x, point.y);
-            point.on('move', this.__endPointMove);
-        },
-
-        /**
-         *  移除起始点位
-         */
-        removeStartPoint: function() {
-            if (this.endPoint) {
-                this.endPoint.off('move', this.__endPointMove);
-                delete this.endPoint;
-            }
-        },
-
-        /**
-         *  移除结束点位
-         */
-        removeEndPoint: function() {
-            if (this.startPoint) {
-                this.startPoint.off('move', this.__startPointMove);
-                delete this.startPoint;
-            }
-        },
 
         /**
          * 根据现在的线的角度, 变化箭头显示的角度
@@ -128,8 +64,7 @@ define(function(require, exports, module) {
                 y: y,
                 style: this.options.style
             });
-        },
-
+        }
 
     });
 });

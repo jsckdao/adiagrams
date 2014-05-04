@@ -41,6 +41,13 @@ define(function(require, exports, module) {
             this.points[index] = [x, y];
             this.path.attr('path', this.buildPathString());
             this.trigger('movePoint', this, index, x, y);
+
+            // 如果是第一个点移动的话, 修改x, y 属性
+            if (index == 0) {
+                this.x = x;
+                this.y = y;
+                this.trigger('move', this, x, y, options);
+            }
         },
 
         /**

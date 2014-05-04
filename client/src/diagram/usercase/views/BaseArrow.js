@@ -8,118 +8,137 @@ define(function(require, exports, module) {
 
         paint: function(paper, options) {
             var self = this;
-            var a = this.arrow = new Arrow(paper, options);
-
-            this.x = this.arrow.x; 
-            this.y = this.arrow.y;
-
-            // 起始拖拽点位
-            this.startHandle = new Point(paper, {
-                x: a.points[0][0],
-                y: a.points[0][1]
-            });
-            // 末尾拖拽点位
-            this.endHandle = new Point(paper, {
-                x: a.points[1][0],
-                y: a.points[1][1]
-            });
-
-            this.startHandle.hide();
-            this.endHandle.hide();
-
-            this.selectHandle.push(this.arrow.path);
-            this.dragHandle.push(this.arrow.path);
-
-            var isDraging = false;
-
-            // 当线的起始与结束点发生变化, 拖拽点位的位置也随之变化
-            this.arrow.on('movePoint', function(arrow, index, x, y) {
-                if (!isDraging) {
-                    if (index == 0) {
-                        self.startHandle.move(x, y);
-                    }
-                    else if (index == self.arrow.points.length - 1) {
-                        self.endHandle.move(x, y);
-                    }
-                }
-                self.trigger('movePoint', this, index, x, y);
-            });
-
-            // 拖拽点位可拖拽
-            Dragable.enable(this.startHandle, this.startHandle.el);
-            Dragable.enable(this.endHandle, this.endHandle.el);
+            this.arrow = new Arrow(paper, options);
+            if (!options.start || !options.end) {
+                throw new Error('arrow must set start point and end point!!');
+            }
+            this.connect(options.start, options.end);
+        },
 
 
-            var _dragStart = function() {
-                isDraging = true;
-            };
-
-            var _dragEnd = function() {
-                isDraging = false;
-            };
-
-            // 当两个拖拽点被拖拽时, 实时变化线的位置
-            this.startHandle.on('dragStart', _dragStart);
-            this.startHandle.on('dragEnd', _dragEnd);
-            this.startHandle.on('dragMove', function(handle, dx, dy, x, y) {
-                var p = a.points[0];
-                a.movePoint(0, p[0] + dx, p[1] + dy);
-            });
-
-            this.endHandle.on('dragStart', _dragStart);
-            this.endHandle.on('dragEnd', _dragEnd);
-            this.endHandle.on('dragMove', function(handle, dx, dy, x, y) {
-                var p = a.points[a.points.length - 1];
-                a.movePoint(a.points.length - 1, p[0] + dx, p[1] + dy);
-            });
-
+        /**
+         *  移动起始点位
+         */
+        moveStartPoint: function(x, y, options) {
+            this.movePoint(0, x, y, options);
         },
 
         /**
-         *  进入选中模式
+         *  移动结束点位
          */
-        enterSelectedMode: function() {
-            this.startHandle.show();
-            this.endHandle.show();
+        moveEndPoint: function(x, y, options) {
+            this.movePoint(1, x, y, options);
+        },
+
+
+        movePoint: function(index, x, y, options) {
+            var p = this.points[index];
+            var self = this;
+            if (p) {
+                p.x = x, p.y = y;
+                this.points.forEach(function(e, i) {
+                    var p1 = e, p2 = i == 0 ? self.points[i + 1] : self.points[i - 1];
+                    var a = this.pointProcess(p1, p2);
+                    self.arrow.movePoint(i, a.x, a.y, options);
+                });
+            }
         },
 
         /**
-         *  离开选中模式
+         *  根据线的方向以及指定点的环绕模式最终确定线在指定端点上该如何绘制
          */
-        cancelSelectedMode: function() {
-            this.startHandle.hide();
-            this.endHandle.hide();
+        pointProcess: function(p1, p2) {
+            // 椭圆环绕模式
+            if (p1.shape == 'ellipse') {
+                return ellipsePointProcess(p1, p2);
+            } 
+            // 矩形环绕模式
+            else if (p1.shape == 'rect') {
+                return rectPointProcess(p1, p2);
+            }
+            return { x: p1.x, y: p1.y };
         },
 
-        move: function(x, y, options) {
-            this.arrow.move(x, y, options);
-            DiagramUnit.prototype.move.call(this, x, y, options);
+
+        /**
+         *  将箭头连接两个点
+         */
+        connect: function(p1, p2) {
+            this.setStartPoint(p1);
+            this.setEndPoint(p2);
         },
 
-
-        /** 
-         *  以下实现 Arrow 类中的几个方法
+        /**
+         *  连接起始点位
          */
         setStartPoint: function(point) {
-            this.arrow.setStartPoint(point);
+            if (!point) return;
+            if (this.startPoint) {
+                this.removeStartPoint();
+            }
+            var self = this;
+            this.startPoint = point;
+            this.__startPointMove = function(p, x, y) {
+                self.arrow.movePoint(0, x, y);
+            };
+
+            this.__startPointMove(point, point.x, point.y);
+            point.on('move', this.__startPointMove);
         },
 
+        /**
+         *  设置结束点位
+         */
         setEndPoint: function(point) {
-            this.arrow.setEndPoint(point);
+            if (!point) return;
+            if (this.endPoint) {
+                this.removeEndPoint();
+            }
+            var self = this;
+            this.endPoint = point;
+            this.__endPointMove = function(p, x, y) {
+                var last = self.arrow.points.length - 1;
+                self.arrow.movePoint(last, x, y);
+            };
+            this.__endPointMove(point, point.x, point.y);
+            point.on('move', this.__endPointMove);
         },
 
-        removeStartPoint: function(point) {
-            this.arrow.removeStartPoint(point);
+        /**
+         *  移除起始点位
+         */
+        removeStartPoint: function() {
+            if (this.endPoint) {
+                this.endPoint.off('move', this.__endPointMove);
+                delete this.endPoint;
+            }
         },
 
-        removeEndPoint: function(point) {
-            this.arrow.removeEndPoint(point);
-        },
-
-        connect: function(start, end) {
-            this.arrow.connect(start, end);
-        },
+        /**
+         *  移除结束点位
+         */
+        removeEndPoint: function() {
+            if (this.startPoint) {
+                this.startPoint.off('move', this.__startPointMove);
+                delete this.startPoint;
+            }
+        }
 
         
     });
+
+
+    /**
+     *  处理椭圆环绕模式的点
+     */
+    function ellipsePointProcess(p1, p2) {
+
+    }
+
+    /**
+     *  处理矩形环绕模式的点
+     */
+    function rectPointProcess(p1, p2) {
+
+    }
 });

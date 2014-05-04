@@ -20,7 +20,7 @@
         Array.prototype.forEach = function(it) {
             var len = this.length;
             for (var i = 0; i < len; i++) {
-                it(this[i]);
+                it(this[i], i);
             }
         }
     }

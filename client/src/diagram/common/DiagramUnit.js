@@ -13,24 +13,38 @@ define(function(require, exports, module) {
      */
     var DiagramUnit = module.exports = Element.extend({
 
-
+        /**
+         *  初始化
+         */
         initialize: function(paper, options) {
             var self = this;
             // 可促使图形可拖拽的元素
-            this.dragHandle = paper.set();
+            this.dragHandles = paper.set();
             // 可促使图形被选择的元素
-            this.selectHandle = paper.set();
+            this.selectHandles = paper.set();
+            // 可促使图形进入编辑模式的元素
+            this.editHandles = paper.set();
 
+            // 开始绘制图形
             this.paint(paper, options);
 
-            this.selectHandle.click(function(evt) {
+            // 所有可选择元素添加点击事件
+            this.selectHandles.click(function(evt) {
                 evt.preventDefault();
                 evt.stopPropagation();
-                
+                self.select();
             });
 
-            this.selectHandle.forEach(function(e) {
+            // 所有的可拖拽元素添加拖拽事件
+            this.dragHandles.forEach(function(e) {
                 Dragable.enable(self, e);
+            });
+
+            // 所有的可编辑元素添加双击事件
+            this.editHandles.dblclick(function(evt) {
+                evt.preventDefault();
+                evt.stopPropagation();
+                self.edit();
             });
         },
 
@@ -46,16 +60,32 @@ define(function(require, exports, module) {
          *  选择
          */
         select: function() {
-            self.enterSelectedMode();
-            self.trigger('selected', self);
+            this.enterSelectedMode();
+            this.trigger('select', this);
         },
 
         /**
          *  取消选择
          */
-        unselect: function() {
-            self.cancelSelectedMode();
-            self.trigger('unselect', self);
+        stopSelect: function() {
+            this.cancelSelectedMode();
+            this.trigger('stopSelect', this);
+        },
+
+        /**
+         *  编辑
+         */
+        edit: function() {
+            this.enterEditMode();
+            this.trigger('edit', this);
+        }, 
+
+        /**
+         *  取消编辑
+         */
+        stopEdit: function() {
+            this.cancelEditMode();
+            this.trigger('stopEdit', this);
         },
 
         /** 
@@ -69,6 +99,20 @@ define(function(require, exports, module) {
          *  离开选中模式时图形应当发生的变化, 由子类实现
          */
         cancelSelectedMode: function() {
+
+        },
+
+        /**
+         *  进入编辑模式, 由子类实现
+         */
+        enterEditMode: function() {
+
+        },
+
+        /**
+         *  取消编辑模式, 由子类实现
+         */
+        cancelEditMode: function() {
 
         }
     });

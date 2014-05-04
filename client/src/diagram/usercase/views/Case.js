@@ -11,8 +11,8 @@ define(function(require, exports, module) {
                 'fill': 'white'
             });
 
-            this.selectHandle.push(this.ellipse);
-            this.dragHandle.push(this.ellipse);
+            this.selectHandles.push(this.ellipse);
+            this.dragHandles.push(this.ellipse);
 
             var w = this.width / 2, h = this.height / 2;
 
