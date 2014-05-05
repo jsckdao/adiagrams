@@ -2,11 +2,17 @@ define(function(require, exports, module) {
     var $ = require('jquery'),
         BB = require('backbone'),
         ToolsBar = require('./ToolsBar.js'),
+        DiagramFactory = require('./DiagramFactory.js'),
         DiagramDesk = require('./DiagramDesk.js');
 
     var DiagramEditor = module.exports = BB.View.extend({
 
         initialize: function(options) {
+            if (!options.diagrams) {
+                throw new Error('must set diagrams config!!!');
+            }
+
+            var self = this;
             this.$el = $('<div class="diagram-editor" />');
 
             // 所有已绘制的图形单元集合
@@ -15,16 +21,10 @@ define(function(require, exports, module) {
             this.selectedColl = new BB.Model();
 
             // 工具条
-            this.toolsBar = new ToolsBar(options.toolsbar);
+            this.toolsBar = new ToolsBar(options.diagrams);
 
             // 绘图桌面
-            this.desk = new DiagramDesk(options.desk);
-
-            this.diagramFactory = options.factory;
-
-            
-
-            
+            this.desk = new DiagramDesk();
         },
 
         render: function(context) {
