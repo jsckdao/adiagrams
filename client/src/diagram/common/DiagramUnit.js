@@ -4,7 +4,7 @@
 define(function(require, exports, module) {
     var Element = require('./Element.js');
     var Dragable = require('./Dragable.js');
-
+    var DiagramModel = require('./DiagramModel.js');
 
     /**
      *  图形单元基类, 图形单元是可被用户在编辑器中直接操作的图形基本单元,
@@ -12,6 +12,8 @@ define(function(require, exports, module) {
      *  的
      */
     var DiagramUnit = module.exports = Element.extend({
+
+        Model: DiagramModel,
 
         /**
          *  初始化
@@ -24,6 +26,10 @@ define(function(require, exports, module) {
             this.selectHandles = paper.set();
             // 可促使图形进入编辑模式的元素
             this.editHandles = paper.set();
+
+            this.model = new this.Model();
+
+            this.model.view = this;
 
             // 开始绘制图形
             this.paint(paper, options);
@@ -46,6 +52,21 @@ define(function(require, exports, module) {
                 evt.stopPropagation();
                 self.edit();
             });
+
+            // 当模型中位置发生改变, 同步到界面上
+            this.mode.on('change:locate', function(m) {
+                if (!m._lock) {
+                    var l = m.get('locate');
+                    self.move(l.x, l.y);
+                }
+            });
+        },
+
+        move: function(x, y, options) {
+            this.model._lock = true;
+            this.model.set({ locate: { x: x, y: y } });
+            delete this.model._lock;
+            Element.prototype.move.call(this, x, y, options);
         },
 
         /**
@@ -61,6 +82,14 @@ define(function(require, exports, module) {
          */
         select: function() {
             this.enterSelectedMode();
+            this.selectHandles.forEach(function(el) {
+                el._strokeColor = el.attr('stroke');
+                el._strokeWidth = el.attr('stroke-width');
+                el.attr({
+                    'stroke': 'blue',
+                    'stroke-width': 2
+                });
+            });
             this.trigger('select', this);
         },
 
@@ -69,6 +98,14 @@ define(function(require, exports, module) {
          */
         stopSelect: function() {
             this.cancelSelectedMode();
+            this.selectHandles.forEach(function(el) {
+                if (el._strokeColor) {
+                    el.attr({
+                        'stroke': el._strokeColor,
+                        'stroke-width': el._strokeWidth
+                    });
+                }
+            });
             this.trigger('stopSelect', this);
         },
 
