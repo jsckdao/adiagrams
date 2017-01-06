@@ -23,15 +23,16 @@
             }
         });
 
-        seajs.use(['src/ui/DiagramEditor.js', 
+        seajs.use(['src/ui/Editor.js', 
             'src/diagram/usercase/index.js'], 
-        function(DiagramEditor, Usercase) {
+        function(Editor, Usercase) {
 
-            var editor = new DiagramEditor({
+            var editor = new Editor({
                 diagrams: Usercase
             });
-
+            
             editor.render(document.body);
+            editor.show();
 
         });
 </script>

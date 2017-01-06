@@ -47,8 +47,14 @@ define(function(require, exports, module) {
      */
     exports.disable = function(element, dragContext) {
         if (dragContext._dragHandle) {
-            dragContext.off('mousedown', dragContext._dragHandle);
+            if (dragContext.unmousedown) {
+                dragContext.unmousedown(dragContext._dragHandle);
+            }
+            else {
+                dragContext.unbind('mousedown', dragContext._dragHandle);
+            }
             dragContext.attr('cursor', 'default');
+            delete dragContext._dragHandle;
         }
     };
 });

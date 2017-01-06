@@ -1,6 +1,7 @@
 body {
     margin: 0px;
     padding: 0px;
+    font-size: 14px;
 }
 
 .diagram-editor {
@@ -20,12 +21,34 @@ body {
     box-shadow: 0 0 18px rgba(0, 0, 0, 0.4);
 }
 
+.de-toolsbar .selected {
+    border-color: blue;
+}
+
+.de-toolsbar-item {
+    float: left;
+    cursor: pointer;
+    margin: 5px;
+    padding: 5px;
+    border: dashed 1px #dfdfdf;
+}
+
+.de-toolsbar-thumb {
+    width: 100px;
+    height: 50px;
+}
+
+.de-toolsbar-text {
+    text-align: center;
+    padding: 3px;
+}
+
 .de-desk {
     position: absolute;
     background: #DFDFDF;
     left: 200px;
     top: 0px;
-    bottom: 0px;
+    bottom: 150px;
     right: 0px;
     overflow: scroll;
 }
@@ -35,6 +58,18 @@ body {
     left: 0px;
     top: 0px;
     background: url(../images/grid.png);
+    box-shadow: 0 0 18px rgba(0, 0, 0, 0.4);
+}
+
+.de-info-panel {
+    border: 1px solid #aaa;
+    position: absolute;
+    background: white;
+    bottom: 0px;
+    height: 150px;
+    left: 200px;
+    right: 0px;
+    z-index: 2;
     box-shadow: 0 0 18px rgba(0, 0, 0, 0.4);
 }
 

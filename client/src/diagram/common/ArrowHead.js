@@ -33,6 +33,11 @@ define(function(require, exports, module) {
 
         rotate: function(r) {
             this.path.transform('r' + r);
+        },
+
+        remove: function() {
+            this.path.remove();
+            Element.prototype.remove.call(this);
         }
     });
 });

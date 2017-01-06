@@ -6,6 +6,8 @@ define(function(require, exports, module) {
     var Case = module.exports = DiagramUnit.extend({
         
         paint: function(paper, options) {
+            this.width = options.width || 100;
+            this.height = options.height || 50;
 
             this.ellipse = paper.ellipse(this.x, this.y, this.width / 2, this.height / 2).attr({
                 'fill': 'white'
@@ -25,22 +27,7 @@ define(function(require, exports, module) {
 
         remove: function() {
             this.ellipse.remove();
-        },
-
-        /**
-         *  进入选中模式
-         */
-        enterSelectedMode: function() {
-
-        },
-
-        /**
-         *  离开选中模式
-         */
-        cancelSelectedMode: function() {
-            
-        },
-
+        }
 
     });
 });

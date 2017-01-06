@@ -1,4 +1,10 @@
 define(function(require, exports, module) {
+    var User = require('./views/User.js'),
+        Case = require('./views/Case.js'),
+        ExtendArrow = require('./views/ExtendArrow.js'),
+        IncludeArrow = require('./views/IncludeArrow.js'),
+        _ = require('_');
+
     module.exports = {
 
         diagrams: {
@@ -7,9 +13,15 @@ define(function(require, exports, module) {
             'usercase': {
                 name: '用例',
                 type: 'diagram',
-                thumb: '<ellipse cx="50" cy="25" rx="50" ry="25" fill="#ffffff" stroke="#000"></ellipse>',
-                create: function(page, x, y, options) {
-
+                thumb: [{
+                    type: 'ellipse', 
+                    cx: 50, cy: 25, 
+                    rx: 40, ry: 22, 
+                    fill: "#ffffff", 
+                    stroke:"#000"
+                }],
+                create: function(paper, options) {
+                    return new Case(paper, options);
                 }
             },
 
@@ -17,9 +29,14 @@ define(function(require, exports, module) {
             'user': {
                 name: '用户',
                 type: 'diagram',
-                thumb: '',
-                create: function(page, x, y, options) {
-
+                thumb: [
+                    { type: 'circle', cx: 50, cy: 9, r: 8 }, 
+                    { type: 'path', path: 'M30,25L70,25' },
+                    { type: 'path', path: 'M50,17L50,35L30,50' },
+                    { type: 'path', path: 'M50,35L70,50'}
+                ],
+                create: function(paper, options) {
+                    return new User(paper, options);
                 }
             },
 
@@ -27,9 +44,13 @@ define(function(require, exports, module) {
             'extendArrow': {
                 name: '扩展',
                 type: 'arrow',
-                thumb: '',
-                create: function(page, start, end, options) {
-
+                thumb: [{ 
+                    type: 'path',
+                    path: 'M25,12.5L75,47.5',
+                    'arrow-end': 'block-wide-long'
+                }],
+                create: function(paper, options) {
+                    return new ExtendArrow(paper, options);
                 }
 
             },
@@ -38,9 +59,13 @@ define(function(require, exports, module) {
             'includeArrow': {
                 name: '包含',
                 type: 'arrow',
-                thumb: '',
-                factory: function(page, start, end, options) {
-
+                thumb: [{ 
+                    type: 'path',
+                    path: 'M25,12.5L75,47.5',
+                    'arrow-end': 'block-wide-long'
+                }],
+                create: function(paper, options) {
+                    return new IncludeArrow(paper, options);
                 }
             }
         }

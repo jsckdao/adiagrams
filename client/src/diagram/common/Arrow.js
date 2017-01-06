@@ -18,11 +18,14 @@ define(function(require, exports, module) {
                     [200, 200]
                 ],
                 style: {
-                    'stroke-width': 2
+                    'stroke-width': 2,
+                    //'arrow-end': 'block-wide-long'
                 }
             }, o);
 
             Line.prototype.initialize.call(this, paper, o);
+
+
             var p = this.points[this.points.length - 1];
             this.arrowHead = this.paintArrawHead(p[0], p[1]);
             this.changeArrowHeadAngle();
@@ -64,6 +67,12 @@ define(function(require, exports, module) {
                 y: y,
                 style: this.options.style
             });
+        },
+
+
+        remove: function() {
+            this.arrowHead.remove();
+            Line.prototype.remove.call(this);
         }
 
     });

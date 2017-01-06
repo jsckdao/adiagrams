@@ -1,8 +1,8 @@
 define(function(require, exports, module) {
-    var Arrow = require('../../common/Arrow.js');
-    var DiagramUnit = require('../../common/DiagramUnit.js');
-    var Point = require('../../common/Point.js');
-    var Dragable = require('../../common/Dragable.js');
+    var Arrow = require('./Arrow.js');
+    var DiagramUnit = require('./DiagramUnit.js');
+    var Point = require('./Point.js');
+    var Dragable = require('./Dragable.js');
 
     var names = ['startPoint', 'endPoint'];
 
@@ -17,6 +17,31 @@ define(function(require, exports, module) {
                 throw new Error('arrow must set start point and end point!!');
             }
             this.connect(options.start, options.end);
+
+            if (options.text) {
+                this.arrow.on('movePoint', function() {
+                    self.paintText(options.text);
+                });
+
+                this.paintText(options.text);
+            }
+        },
+
+        /**
+         *  绘制箭头上的文字
+         */
+        paintText: function(text) {
+            var p = this.points;
+            var c = {
+                x: (p[1].x - p[0].x) / 2 || 0,
+                y: (p[1].y - p[0].y) / 2 || 0
+            };
+            if (this.text) {
+                this.text.attr({ x: c.x, y: c.y });
+            }
+            else {
+                this.text = this.paper.text(c.x, c.y, text);
+            }
         },
 
 
@@ -39,12 +64,17 @@ define(function(require, exports, module) {
             var p = this.points[index];
             var self = this;
             if (p) {
-                p.x = x, p.y = y;
-                this.points.forEach(function(e, i) {
-                    var p1 = e, p2 = i == 0 ? self.points[i + 1] : self.points[i - 1];
-                    var a = self.pointProcess(p1, p2);
-                    self.arrow.movePoint(i, a.x, a.y, options);
-                });
+                if (!p.shape || p.shape == 'none') {
+                    this.arrow.movePoint(index, x, y, options);
+                }
+                else {
+                    p.x = x, p.y = y;
+                    this.points.forEach(function(e, i) {
+                        var p1 = e, p2 = i == 0 ? self.points[i + 1] : self.points[i - 1];
+                        var a = self.pointProcess(p1, p2);
+                        self.arrow.movePoint(i, a.x, a.y, options);
+                    });
+                }
             }
         },
 
@@ -111,8 +141,10 @@ define(function(require, exports, module) {
             }
             else {
                 this.points[index] = {
-                    x: point[0], y: point[1],
-                    shape: 'none'
+                    x: point.x, y: point.y,
+                    width: point.width || 1,
+                    height: point.height || 1,
+                    shape: point.shape || 'none'
                 };
             }
             this.movePoint(index, point.x, point.y);
@@ -139,6 +171,11 @@ define(function(require, exports, module) {
          */
         removeEndPoint: function() {
             this.removePoint(1);
+        },
+
+        remove: function() {
+            this.arrow.remove();
+            DiagramUnit.prototype.remove.call(this);
         }
     });
 

@@ -5,6 +5,7 @@ define(function(require, exports, module) {
     var Element = require('./Element.js');
     var Dragable = require('./Dragable.js');
     var DiagramModel = require('./DiagramModel.js');
+    var Utils = require('../../common/Utils.js');
 
     /**
      *  图形单元基类, 图形单元是可被用户在编辑器中直接操作的图形基本单元,
@@ -24,37 +25,18 @@ define(function(require, exports, module) {
             this.dragHandles = paper.set();
             // 可促使图形被选择的元素
             this.selectHandles = paper.set();
-            // 可促使图形进入编辑模式的元素
-            this.editHandles = paper.set();
-
+            // 数据模型
             this.model = new this.Model();
 
             this.model.view = this;
 
+            this.isSelected = false;
+
             // 开始绘制图形
             this.paint(paper, options);
 
-            // 所有可选择元素添加点击事件
-            this.selectHandles.click(function(evt) {
-                evt.preventDefault();
-                evt.stopPropagation();
-                self.select();
-            });
-
-            // 所有的可拖拽元素添加拖拽事件
-            this.dragHandles.forEach(function(e) {
-                Dragable.enable(self, e);
-            });
-
-            // 所有的可编辑元素添加双击事件
-            this.editHandles.dblclick(function(evt) {
-                evt.preventDefault();
-                evt.stopPropagation();
-                self.edit();
-            });
-
             // 当模型中位置发生改变, 同步到界面上
-            this.mode.on('change:locate', function(m) {
+            this.model.on('change:locate', function(m) {
                 if (!m._lock) {
                     var l = m.get('locate');
                     self.move(l.x, l.y);
@@ -62,6 +44,9 @@ define(function(require, exports, module) {
             });
         },
 
+        /**
+         *  移动
+         */
         move: function(x, y, options) {
             this.model._lock = true;
             this.model.set({ locate: { x: x, y: y } });
@@ -82,14 +67,7 @@ define(function(require, exports, module) {
          */
         select: function() {
             this.enterSelectedMode();
-            this.selectHandles.forEach(function(el) {
-                el._strokeColor = el.attr('stroke');
-                el._strokeWidth = el.attr('stroke-width');
-                el.attr({
-                    'stroke': 'blue',
-                    'stroke-width': 2
-                });
-            });
+            this.isSelected = true;
             this.trigger('select', this);
         },
 
@@ -98,6 +76,36 @@ define(function(require, exports, module) {
          */
         stopSelect: function() {
             this.cancelSelectedMode();
+            this.isSelected = false;
+            this.trigger('stopSelect', this);
+        },
+
+        /** 
+         *  进入选中模式时图形应当发生的变化
+         */
+        enterSelectedMode: function() {
+            this.enterFocusMode();
+        },
+
+        /**
+         *  离开选中模式时图形应当发生的变化
+         */
+        cancelSelectedMode: function() {
+            this.cancelFocusMode();
+        },
+
+        enterFocusMode: function() {
+            this.selectHandles.forEach(function(el) {
+                el._strokeColor = el.attr('stroke');
+                el._strokeWidth = el.attr('stroke-width');
+                el.attr({
+                    'stroke': 'blue',
+                    'stroke-width': 2
+                });
+            });
+        },
+
+        cancelFocusMode: function() {
             this.selectHandles.forEach(function(el) {
                 if (el._strokeColor) {
                     el.attr({
@@ -106,51 +114,84 @@ define(function(require, exports, module) {
                     });
                 }
             });
-            this.trigger('stopSelect', this);
         },
 
         /**
-         *  编辑
+         *  启用拖拽功能
          */
-        edit: function() {
-            this.enterEditMode();
-            this.trigger('edit', this);
-        }, 
-
-        /**
-         *  取消编辑
-         */
-        stopEdit: function() {
-            this.cancelEditMode();
-            this.trigger('stopEdit', this);
-        },
-
-        /** 
-         *  进入选中模式时图形应当发生的变化, 由子类实现
-         */
-        enterSelectedMode: function() {
-
+        enableDrag: function() {
+            var self = this;
+            // 所有的可拖拽元素添加拖拽事件
+            this.dragHandles.forEach(function(e) {
+                Dragable.enable(self, e);
+            });
         },
 
         /**
-         *  离开选中模式时图形应当发生的变化, 由子类实现
+         *  禁用拖拽功能
          */
-        cancelSelectedMode: function() {
-
+        disableDrag: function() {
+            var self = this;
+            this.dragHandles.forEach(function(e) {
+                Dragable.disable(self, e);
+            });
         },
 
         /**
-         *  进入编辑模式, 由子类实现
+         *  启用点击选择 
          */
-        enterEditMode: function() {
+        enableSelect: function() {
 
+            var self = this;
+            // 触发选择事件
+            Utils.sclick(this.selectHandles, function(evt) {
+                if (!self.isSelected) {
+                    self.select();
+                }
+            });
         },
 
         /**
-         *  取消编辑模式, 由子类实现
+         *  禁用点击选择
          */
-        cancelEditMode: function() {
+        disableSelect: function() {
+            Utils.unsclick(this.selectHandles);
+        },
 
+        /**
+         *  启用焦点显示
+         */
+        enableFocus: function() {
+            if (!this._focus_over_handle) {
+                var self = this;
+                this._focus_over_handle = function() {
+                    self.trigger('focus', self);
+                };
+
+                this._focus_out_handle = function() {
+                    self.trigger('blur', self);
+                };
+
+                this.selectHandles.forEach(function(e) {
+                    e.mouseover(self._focus_over_handle);
+                    e.mouseout(self._focus_out_handle);
+                });
+            }
+        },
+
+        /**
+         *  禁用焦点显示 
+         */
+        disableFocus: function() {
+            if (this._focus_over_handle) {
+                var self = this;
+                this.selectHandles.forEach(function(e) {
+                    e.unmouseover(this._focus_over_handle);
+                    e.unmouseout(this._focus_out_handle);
+                });
+                delete this._focus_over_handle;
+                delete this._focus_out_handle;
+            }
         }
     });
 });
